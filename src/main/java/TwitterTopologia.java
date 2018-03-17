@@ -61,12 +61,13 @@ public class TwitterTopologia {
         TotalRankingsBolt rankingTotal = new TotalRankingsBolt(100);
         SentimentBolt sentimiento = new SentimentBolt();
         EntitiesBolt entidad = new EntitiesBolt();
-
+        GeolocationBolt geolocation = new GeolocationBolt();
 
         builder.setSpout("spoutLeerTwitter",spout,1);
 //        builder.setBolt("lenguaje",lenguaje,1).shuffleGrouping("spoutLeerTwitter");
 //        builder.setBolt("sentimiento", sentimiento,1).shuffleGrouping("lenguaje");
         builder.setBolt("entidad", entidad,1).shuffleGrouping("spoutLeerTwitter");
+        builder.setBolt("geolocation", geolocation,1).shuffleGrouping("entidad");
 //        builder.setBolt("hashtag",hashtag,1).shuffleGrouping("lenguaje");
 //        builder.setBolt("cont",contador,1).fieldsGrouping("hashtag", new Fields("entity"));
 //        builder.setBolt("ranking",ranking,1).fieldsGrouping("cont", new Fields("obj"));
@@ -75,7 +76,7 @@ public class TwitterTopologia {
 
 
         Config conf = new Config();
-        conf.setDebug(true);
+        conf.setDebug(false);
 
         if (args != null && args.length > 0) {
             conf.setNumWorkers(3);

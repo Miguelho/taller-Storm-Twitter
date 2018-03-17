@@ -29,14 +29,15 @@ public class EntitiesBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
 
-        String dandelion_key = "bc5e7f9be6884eb08ada8ffeb833be2f";
+        String dandelion_key = "a0e4e07a47654fcdbd78881c1c6c1fb7";
 
         try {
-            JSONObject json = new JSONObject(tuple);
+            String message = tuple.getStringByField("message");
+
             String cadenaUrl;
 
             cadenaUrl = "https://api.dandelion.eu/datatxt/nex/v1/?social=True&min_confidence=0.6&country=-1&include=image%2Cabstract%2Ctypes%2Ccategories%2Clod&text=";
-            cadenaUrl += json.getString("values").replaceAll("[^\\p{Alpha}\\p{Digit}]+","+").replace(' ', '+');
+            cadenaUrl += message.replaceAll("[^\\p{Alpha}\\p{Digit}]+","+").replace(' ', '+');
             cadenaUrl += "&token=" + dandelion_key;
 
             URL url = new URL(cadenaUrl);
@@ -63,7 +64,7 @@ public class EntitiesBolt extends BaseRichBolt {
 
             JSONObject jsonResponse = new JSONObject(sb.toString());
             JSONArray results = jsonResponse.getJSONArray("annotations");
-            JSONArray entidades = new JSONArray();
+
             for (int i=0; i<results.length();i++) {
                 String categoria = "Otro";
                 JSONObject annotation = results.getJSONObject(i);
@@ -80,21 +81,17 @@ public class EntitiesBolt extends BaseRichBolt {
                         categoria = "Otro";
                     }
                 }
-                JSONObject entidad = new JSONObject();
+
                 if (categoria.equals("Place")) {
-                    entidad.put("nombre", nombre);
-                    entidad.put("categoria", categoria);
-                    entidades.put(entidad);
+                    _collector.emit(new Values(message, nombre));
+
+                    // Confirmación de que la tupla fue creada
+                    _collector.ack(tuple);
                 }
             }
 
-            json.put("entidades", entidades);
 
-            _collector.emit(new Values(json.toString()));
 
-            // Confirmación de que la tupla fue creada
-
-            _collector.ack(tuple);
 
         }
         catch( JSONException | IOException e){
@@ -104,7 +101,7 @@ public class EntitiesBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("json"));
+        outputFieldsDeclarer.declare(new Fields("message","nombre"));
     }
 
     @Override
