@@ -2,6 +2,7 @@ import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.stats.RollingWindow;
+import backtype.storm.topology.IBasicBolt;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import bolt.*;
@@ -11,10 +12,10 @@ import twitter4j.FilterQuery;
 
 public class TwitterTopologia {
 
-    private static String consumerKey = "FILL IN HERE";
-    private static String consumerSecret = "FILL IN HERE";
-    private static String accessToken = "FILL IN HERE";
-    private static String accessTokenSecret = "FILL IN HERE";
+    private static String consumerKey = "Q76Mm06QTduQQYl3sjD49Paa9";
+    private static String consumerSecret = "suYsVbXZRwvWDFSB5lSCJFOIBDPmlS10JmCnV6djVoain8nbCi";
+    private static String accessToken = "922458619135840256-FUrVTDNrCave7JXo6eK21vYg2W31zbR";
+    private static String accessTokenSecret = "0KvQcqBsUg4CSxQ1FZMkcUf5mEsWiQ3P6SYRdqQHzGA6Y";
 
 
 
@@ -59,15 +60,18 @@ public class TwitterTopologia {
         IntermediateRankingsBolt ranking = new IntermediateRankingsBolt(100);
         TotalRankingsBolt rankingTotal = new TotalRankingsBolt(100);
         SentimentBolt sentimiento = new SentimentBolt();
+        EntitiesBolt entidad = new EntitiesBolt();
+
 
         builder.setSpout("spoutLeerTwitter",spout,1);
-        builder.setBolt("lenguaje",lenguaje,1).shuffleGrouping("spoutLeerTwitter");
-        builder.setBolt("sentimiento", sentimiento,1).shuffleGrouping("lenguaje");
+//        builder.setBolt("lenguaje",lenguaje,1).shuffleGrouping("spoutLeerTwitter");
+//        builder.setBolt("sentimiento", sentimiento,1).shuffleGrouping("lenguaje");
+        builder.setBolt("entidad", entidad,1).shuffleGrouping("spoutLeerTwitter");
 //        builder.setBolt("hashtag",hashtag,1).shuffleGrouping("lenguaje");
 //        builder.setBolt("cont",contador,1).fieldsGrouping("hashtag", new Fields("entity"));
 //        builder.setBolt("ranking",ranking,1).fieldsGrouping("cont", new Fields("obj"));
 //        builder.setBolt("rankingTot",rankingTotal,1).globalGrouping("ranking");
-        builder.setBolt("escribirFichero",fileWriterBolt,1).shuffleGrouping("sentimiento");
+        builder.setBolt("escribirFichero",fileWriterBolt,1).shuffleGrouping("spoutLeerTwitter");
 
 
         Config conf = new Config();

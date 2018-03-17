@@ -22,7 +22,7 @@
             <artifactId>storm-core</artifactId>
             <version>0.10.0</version>
             <!-- keep storm out of the jar-with-dependencies -->
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
