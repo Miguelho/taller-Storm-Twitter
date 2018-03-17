@@ -44,7 +44,7 @@ public class TwitterTopologia {
 
         FilterQuery tweetFilterQuery = new FilterQuery();
         // TODO: Define your own twitter query
-         tweetFilterQuery.track(new String[]{"madrid"});
+         tweetFilterQuery.track(new String[]{"rajoy"});
         // See https://github.com/kantega/storm-twitter-workshop/wiki/Basic-Twitter-stream-reading-using-Twitter4j
 
 
@@ -62,12 +62,14 @@ public class TwitterTopologia {
         SentimentBolt sentimiento = new SentimentBolt();
         EntitiesBolt entidad = new EntitiesBolt();
         GeolocationBolt geolocation = new GeolocationBolt();
+        DweetBolt dweet = new DweetBolt();
 
         builder.setSpout("spoutLeerTwitter",spout,1);
 //        builder.setBolt("lenguaje",lenguaje,1).shuffleGrouping("spoutLeerTwitter");
 //        builder.setBolt("sentimiento", sentimiento,1).shuffleGrouping("lenguaje");
         builder.setBolt("entidad", entidad,1).shuffleGrouping("spoutLeerTwitter");
         builder.setBolt("geolocation", geolocation,1).shuffleGrouping("entidad");
+        builder.setBolt("dweet", dweet,1).shuffleGrouping("geolocation");
 //        builder.setBolt("hashtag",hashtag,1).shuffleGrouping("lenguaje");
 //        builder.setBolt("cont",contador,1).fieldsGrouping("hashtag", new Fields("entity"));
 //        builder.setBolt("ranking",ranking,1).fieldsGrouping("cont", new Fields("obj"));
